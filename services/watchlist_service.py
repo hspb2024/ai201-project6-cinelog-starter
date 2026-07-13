@@ -51,7 +51,7 @@ def add_to_watchlist(user_id, film_id):
 
 def get_watchlist(user_id):
     """
-    Return all films on a user's watchlist.
+    Return all films on a user's watchlist, sorted by date added (newest first).
 
     Args:
         user_id (str): UUID of the user.
@@ -59,11 +59,13 @@ def get_watchlist(user_id):
     Returns:
         list[dict]: List of film dicts with watchlist metadata attached.
     """
+    # Sort by date added, newest first — see Comment 5 in pr-response.md.
+    # This matches get_collection()'s ordering and reflects that a watchlist is a
+    # recency-oriented queue ("what did I just add / watch next"), not a lookup table.
     entries = (
         WatchlistEntry.query
         .filter_by(user_id=user_id)
-        .join(Film)
-        .order_by(Film.title.asc())
+        .order_by(WatchlistEntry.date_added.desc())
         .all()
     )
 
